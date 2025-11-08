@@ -164,7 +164,8 @@ public class Events implements Listener {
         if (RevertHelper.revertAll(location, true, ItemState::isIllegal, itemStackUsed)) {
             event.setCancelled(true);
             itemStackUsed.setAmount(0);
-            AntiIllegals.log(event.getEventName(), "Removed illegal block '" + placedBlockType + "' while being placed by " + playerName + ".");
+            AntiIllegals.log(event.getEventName(),
+                    "Removed illegal block '" + placedBlockType + "' while being placed by " + playerName + ".");
         }
     }
 
@@ -236,7 +237,8 @@ public class Events implements Listener {
             event.setCancelled(true);
             playerItem.setAmount(0);
             armorStandItem.setAmount(0);
-            AntiIllegals.log(event.getEventName(), "Removed illegal items of " + event.getPlayer().getName() + " on armor stand manipulation.");
+            AntiIllegals.log(event.getEventName(),
+                    "Removed illegal items of " + event.getPlayer().getName() + " on armor stand manipulation.");
         }
     }
 
@@ -269,6 +271,56 @@ public class Events implements Listener {
             event.setItem(new ItemStack(Material.AIR));
             block.getState().update(true, false);
             AntiIllegals.log(event.getEventName(), "Removed an illegal item while being dispensed.");
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onPlayerJoin(@NotNull final PlayerJoinEvent event) {
+        final Player player = event.getPlayer();
+        final PlayerInventory inventory = player.getInventory();
+        final Location location = player.getLocation();
+
+        final ItemStack mainHandStack = inventory.getItemInMainHand();
+        final ItemStack offhandHandStack = inventory.getItemInOffHand();
+
+        boolean removedHandItems = false;
+
+        if (RevertHelper.revert(mainHandStack, location, true, ItemState::isIllegal)) {
+            mainHandStack.setAmount(0);
+            removedHandItems = true;
+        }
+
+        if (RevertHelper.revert(offhandHandStack, location, true, ItemState::isIllegal)) {
+            offhandHandStack.setAmount(0);
+            removedHandItems = true;
+        }
+
+        inventory.setItemInMainHand(mainHandStack);
+        inventory.setItemInOffHand(offhandHandStack);
+
+        if (removedHandItems) {
+            AntiIllegals.log(event.getEventName(), "Removed illegal hand items from " + player.getName() + " on join.");
+        }
+
+        final ItemStack[] armorContents = inventory.getArmorContents();
+        boolean removedArmorItems = false;
+
+        for (int i = 0; i < armorContents.length; i++) {
+            final ItemStack armorPiece = armorContents[i];
+            if (armorPiece == null || armorPiece.getType() == Material.AIR)
+                continue;
+
+            if (RevertHelper.revert(armorPiece, location, true, ItemState::isIllegal)) {
+                armorPiece.setAmount(0);
+                removedArmorItems = true;
+            }
+        }
+
+        inventory.setArmorContents(armorContents);
+
+        if (removedArmorItems) {
+            AntiIllegals.log(event.getEventName(),
+                    "Removed illegal armor items from " + player.getName() + " on join.");
         }
     }
 }
