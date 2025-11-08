@@ -286,6 +286,7 @@ public class RevertHelper {
                 | removeAttributes(itemStack)
                 | removeHideFlags(itemStack)
                 | removeCustomPotionEffects(itemStack)
+                | removeIllegalCrossbowProjectiles(itemStack)
                 | removeSuspiciousStewEffects(itemStack)
                 | removeIllegalEnchantmentLevels(itemStack)
                 | removeIllegalFlightTime(itemStack);
@@ -753,16 +754,32 @@ public class RevertHelper {
         if (itemMeta == null)
             return false;
 
-        if (itemMeta instanceof final PotionMeta potionMeta) {
-            if (!potionMeta.hasCustomEffects())
-                return false;
+        if (!(itemMeta instanceof final PotionMeta potionMeta))
+            return false;
 
-            potionMeta.clearCustomEffects();
-            itemStack.setItemMeta(potionMeta);
-            return true;
-        }
+        if (!potionMeta.hasCustomEffects())
+            return false;
 
-        if (itemStack.getType() != Material.CROSSBOW || !(itemMeta instanceof final CrossbowMeta crossbowMeta))
+        potionMeta.clearCustomEffects();
+        itemStack.setItemMeta(potionMeta);
+        return true;
+    }
+
+    /**
+     * removes any illegal charged projectiles from crossbows
+     *
+     * @param itemStack the item to revert
+     * @return whether the charged projectiles were modified
+     */
+    private static boolean removeIllegalCrossbowProjectiles(@NotNull final ItemStack itemStack) {
+        if (!AntiIllegals.config().getBoolean("crossbowProjectiles"))
+            return false;
+
+        if (itemStack.getType() != Material.CROSSBOW)
+            return false;
+
+        final ItemMeta itemMeta = itemStack.getItemMeta();
+        if (!(itemMeta instanceof final CrossbowMeta crossbowMeta))
             return false;
 
         if (!crossbowMeta.hasChargedProjectiles())
