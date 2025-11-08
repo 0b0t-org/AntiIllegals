@@ -302,25 +302,25 @@ public class Events implements Listener {
             AntiIllegals.log(event.getEventName(), "Removed illegal hand items from " + player.getName() + " on join.");
         }
 
-        final ItemStack[] armorContents = inventory.getArmorContents();
-        boolean removedArmorItems = false;
+        final ItemStack[] inventoryContents = inventory.getContents();
+        boolean removedInventoryItems = false;
 
-        for (int i = 0; i < armorContents.length; i++) {
-            final ItemStack armorPiece = armorContents[i];
-            if (armorPiece == null || armorPiece.getType() == Material.AIR)
+        for (int i = 0; i < inventoryContents.length; i++) {
+            final ItemStack item = inventoryContents[i];
+            if (item == null || item.getType() == Material.AIR)
                 continue;
 
-            if (RevertHelper.revert(armorPiece, location, true, ItemState::isIllegal)) {
-                armorPiece.setAmount(0);
-                removedArmorItems = true;
+            if (RevertHelper.revert(item, location, true, ItemState::isIllegal)) {
+                item.setAmount(0);
+                removedInventoryItems = true;
             }
         }
 
-        inventory.setArmorContents(armorContents);
+        inventory.setContents(inventoryContents);
 
-        if (removedArmorItems) {
+        if (removedInventoryItems) {
             AntiIllegals.log(event.getEventName(),
-                    "Removed illegal armor items from " + player.getName() + " on join.");
+                    "Removed illegal items from " + player.getName() + " on join.");
         }
     }
 }
