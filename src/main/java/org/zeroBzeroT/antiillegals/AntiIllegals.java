@@ -65,6 +65,7 @@ public class AntiIllegals extends JavaPlugin {
         log("maxBooksShulkersInInventory", "" + getConfig().getInt("maxBooksShulkersInInventory"));
         log("attributeModifiers", "" + getConfig().getBoolean("attributeModifiers"));
         log("customPotionEffects", "" + getConfig().getBoolean("customPotionEffects"));
+    log("crossbowProjectiles", "" + getConfig().getBoolean("crossbowProjectiles"));
         log("suspiciousStewEffects", "" + getConfig().getBoolean("suspiciousStewEffects"));
         log("hideFlags", "" + getConfig().getBoolean("hideFlags"));
 
